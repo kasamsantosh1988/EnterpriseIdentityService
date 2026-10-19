@@ -1,0 +1,20 @@
+# Local Oracle Database (23ai Free) for development only.
+# First start takes a minute or two; wait until the container reports healthy.
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    environment:
+      ORACLE_PASSWORD: oracle_sys_pw        # SYS/SYSTEM password (local only)
+      APP_USER: authserver                  # schema/user the app and Flyway connect as
+      APP_USER_PASSWORD: authserver
+    ports:
+      - "1521:1521"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - authserver-oradata:/opt/oracle/oradata
+volumes:
+  authserver-oradata:
