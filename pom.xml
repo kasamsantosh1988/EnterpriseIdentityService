@@ -1,34 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <!-- Use the latest 4.1.x patch release -->
+        <version>4.1.0</version>
+        <relativePath/>
     </parent>
-    <groupId>com.vam</groupId>
-    <artifactId>EnterpriseIdentityService</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>EnterpriseIdentityService</name>
-    <description>EnterpriseIdentityService</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
+    <groupId>com.example</groupId>
+    <artifactId>auth-server</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>auth-server</name>
+    <description>Central OAuth 2.0 / OIDC authorization server (apps keep their own user directories)</description>
+
     <properties>
-        <java.version>25</java.version>
+        <!-- Spring Authorization Server needs Java 17+. Raise to 25 if your toolchain supports it. -->
+        <java.version>21</java.version>
     </properties>
+
     <dependencies>
         <!-- Spring Authorization Server (part of Spring Security 7). Newer Boot lines also offer
              spring-boot-starter-security-oauth2-authorization-server; this name is the documented one. -->
@@ -37,6 +31,10 @@
             <artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -70,6 +68,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -78,5 +77,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
