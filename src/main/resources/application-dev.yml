@@ -1,0 +1,21 @@
+# Development profile. NEVER use these secrets or settings outside a local machine.
+spring:
+  datasource:
+    password: authserver
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+authserver:
+  signing:
+    allow-ephemeral: true
+  bootstrap:
+    enabled: true
+    clients:
+      - client-id: demo-service          # a calling service: gets tokens via client_credentials
+        secret: demo-service-secret
+        scopes: [demo.read]
+      - client-id: demo-api              # an application API: authenticates to /oauth2/introspect
+        secret: demo-api-secret
+        scopes: []

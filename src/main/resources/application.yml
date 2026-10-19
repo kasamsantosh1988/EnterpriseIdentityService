@@ -1,0 +1,31 @@
+server:
+  port: 9000
+  forward-headers-strategy: framework   # honour X-Forwarded-* when behind a load balancer / proxy
+
+spring:
+  application:
+    name: auth-server
+  datasource:
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}   # host:port/SERVICE_NAME
+    username: ${DB_USER:authserver}     # also the schema Flyway creates tables in
+    password: ${DB_PASSWORD}            # required, no default on purpose
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+authserver:
+  # Public base URL clients and resource servers use. Must match the "iss" you want in tokens.
+  issuer: ${AUTH_ISSUER:http://localhost:9000}
+  signing:
+    # PKCS12 keystore holding the RSA signing key (see README for the keytool command).
+    keystore-location: ${SIGNING_KEYSTORE:}
+    keystore-password: ${SIGNING_KEYSTORE_PASSWORD:}
+    key-alias: ${SIGNING_KEY_ALIAS:auth-signing}
+    allow-ephemeral: false              # true = generate a throwaway key at startup (dev only)
+  bootstrap:
+    enabled: false                      # true = seed the machine clients listed below if missing
