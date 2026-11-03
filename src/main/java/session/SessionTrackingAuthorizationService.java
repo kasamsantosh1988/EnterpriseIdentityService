@@ -1,11 +1,13 @@
 package com.example.authserver.session;
 
+import java.security.Principal;
 import java.time.Instant;
 
 import com.example.authserver.config.AuthServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
@@ -45,6 +47,7 @@ public class SessionTrackingAuthorizationService implements OAuth2AuthorizationS
 
     @Override
     public void save(OAuth2Authorization authorization) {
+        authorization = withoutLoginDetails(authorization);
         OAuth2Authorization.Token<OAuth2RefreshToken> refresh = authorization.getRefreshToken();
         OAuth2Authorization previous = (refresh != null) ? this.delegate.findById(authorization.getId()) : null;
 
@@ -58,6 +61,22 @@ public class SessionTrackingAuthorizationService implements OAuth2AuthorizationS
                 log.error("Could not update session bookkeeping for authorization {}", authorization.getId(), ex);
             }
         }
+    }
+
+    /**
+     * The login's request details (client id, IP) are only needed while authenticating. The authorization stores the
+     * signed-in user as JSON, and the JSON reader refuses types that are not on its allowlist, so a stored
+     * LoginDetails makes every later read of the authorization (for example the code exchange) fail. Store the user
+     * without details.
+     */
+    private static OAuth2Authorization withoutLoginDetails(OAuth2Authorization authorization) {
+        Object principal = authorization.getAttribute(Principal.class.getName());
+        if (principal instanceof UsernamePasswordAuthenticationToken token && token.getDetails() != null) {
+            UsernamePasswordAuthenticationToken clean = UsernamePasswordAuthenticationToken
+                .authenticated(token.getPrincipal(), null, token.getAuthorities());
+            return OAuth2Authorization.from(authorization).attribute(Principal.class.getName(), clean).build();
+        }
+        return authorization;
     }
 
     @Override
