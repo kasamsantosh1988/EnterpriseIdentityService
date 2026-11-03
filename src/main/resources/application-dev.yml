@@ -3,6 +3,12 @@ spring:
   datasource:
     password: authserver
 
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false                    # dev runs on plain http
+
 logging:
   level:
     org.springframework.security: DEBUG
@@ -19,3 +25,10 @@ authserver:
       - client-id: demo-api              # an application API: authenticates to /oauth2/introspect
         secret: demo-api-secret
         scopes: []
+      - client-id: platform-admin        # calls /admin/apps and /admin/resource-servers (onboarding)
+        secret: platform-admin-secret
+        scopes: [auth.admin]
+
+  # Dev-only: key the built-in demo directory (/dev/demo-directory) expects from the auth server.
+  secrets:
+    demo-dir: dev-key

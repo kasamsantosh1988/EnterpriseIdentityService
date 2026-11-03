@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Sign in</title>
+    <style>
+        :root { color-scheme: light dark; --bg:#f4f6f8; --card:#fff; --text:#1c2733; --muted:#5b6b7b;
+                --line:#cfd8e1; --accent:#1f5fbf; --error-bg:#fdecec; --error-text:#9b1c1c; }
+        @media (prefers-color-scheme: dark) {
+            :root { --bg:#12171d; --card:#1b232c; --text:#e6ebf0; --muted:#9aa9b8; --line:#33414f;
+                    --accent:#5b9bf0; --error-bg:#3a1d1d; --error-text:#ffb4b4; } }
+        * { box-sizing: border-box; }
+        body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+               background:var(--bg); color:var(--text); font:16px/1.4 system-ui, sans-serif; padding:16px; }
+        main { width:100%; max-width:380px; background:var(--card); border:1px solid var(--line);
+               border-radius:10px; padding:28px; }
+        h1 { font-size:1.25rem; margin:0 0 4px; }
+        p.sub { margin:0 0 20px; color:var(--muted); font-size:.95rem; }
+        label { display:block; font-size:.875rem; margin:14px 0 6px; }
+        input { width:100%; padding:10px 12px; font-size:1rem; border:1px solid var(--line); border-radius:6px;
+                background:transparent; color:inherit; }
+        input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+        button { width:100%; margin-top:22px; padding:11px; font-size:1rem; border:0; border-radius:6px;
+                 background:var(--accent); color:#fff; cursor:pointer; }
+        .error { background:var(--error-bg); color:var(--error-text); padding:10px 12px; border-radius:6px;
+                 margin-bottom:6px; font-size:.9rem; }
+        .note { color:var(--muted); font-size:.9rem; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Sign in</h1>
+    <th:block th:if="${appName != null}">
+        <p class="sub">to continue to <strong th:text="${appName}">Application</strong></p>
+        <div class="error" th:if="${message != null}" th:text="${message}" role="alert">Error</div>
+        <form method="post" th:action="@{/login}">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none"
+                   spellcheck="false" maxlength="200" required autofocus>
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   maxlength="256" required>
+            <button type="submit">Sign in</button>
+        </form>
+    </th:block>
+    <th:block th:if="${appName == null}">
+        <p class="note">Open the application you want to use and choose sign in from there.
+            This page can only be used when you arrive from an application.</p>
+    </th:block>
+</main>
+</body>
+</html>

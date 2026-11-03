@@ -1,5 +1,11 @@
 server:
   port: 9000
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:true}      # set false only for plain-http local development
   forward-headers-strategy: framework   # honour X-Forwarded-* when behind a load balancer / proxy
 
 spring:
@@ -12,11 +18,20 @@ spring:
   flyway:
     enabled: true
 
+  session:
+    # Shared login sessions (central login page). Tables come from Flyway, not from Spring Session.
+    jdbc:
+      initialize-schema: never
+    timeout: 30m
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus   # prometheus is reachable only from authserver.metrics.allowed-addresses
+  endpoint:
+    health:
+      show-details: never
 
 authserver:
   # Public base URL clients and resource servers use. Must match the "iss" you want in tokens.
@@ -27,5 +42,28 @@ authserver:
     keystore-password: ${SIGNING_KEYSTORE_PASSWORD:}
     key-alias: ${SIGNING_KEY_ALIAS:auth-signing}
     allow-ephemeral: false              # true = generate a throwaway key at startup (dev only)
+    published-key-aliases: []           # extra keystore aliases whose PUBLIC keys are served in the JWKS (key rotation, see docs/operations.md)
   bootstrap:
     enabled: false                      # true = seed the machine clients listed below if missing
+  directory:
+    connect-timeout: 3s                 # timeout for reaching an application's verify service / DB
+    read-timeout: 5s                    # timeout waiting for its answer
+    jdbc-pool-size: 3                   # connections per application database
+    config-refresh: 60s                 # how often client_directory_config changes are picked up
+  session:
+    idle: 1h                            # a session ends if its refresh token is not used for this long
+    absolute: 10h                       # hard cap from login, however active the user is
+    reuse-grace: 10s                    # retry window after a refresh token was rotated
+  limits:
+    ip-failures: 30                     # failed logins per IP per short-window
+    user-failures: 5                    # failed logins per user per user-window
+    client-failures: 300                # failed logins per application per short-window
+    short-window: 10m
+    user-window: 15m
+  cleanup:
+    interval: PT1H                      # ISO-8601 duration between cleanup runs
+    retention: 1d                       # keep expired authorizations/sessions this long
+  cors:
+    allowed-origins: ""                 # comma-separated browser origins allowed to call /oauth2/token and /oauth2/revoke; empty = none
+  metrics:
+    allowed-addresses: 127.0.0.1,::1    # addresses/CIDRs (your Prometheus) allowed to read /actuator/prometheus
